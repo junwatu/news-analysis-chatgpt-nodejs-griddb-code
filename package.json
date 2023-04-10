@@ -7,7 +7,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "workspaces": [
+    "packages/*"
+  ],
+  "keywords": [
+    "griddb",
+    "news tagging",
+    "automated content tagging"
+  ],
   "author": "",
   "license": "ISC"
 }
