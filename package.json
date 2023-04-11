@@ -1,14 +1,14 @@
 {
   "name": "news-analysis-openai-nodejs-griddb-code",
   "version": "1.0.0",
-  "description": "",
+  "description": "automated news tagging usning openai",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "workspaces": [
-    "app/*"
+    "apps/*"
   ],
   "keywords": [
     "griddb",
