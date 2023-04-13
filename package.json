@@ -1,7 +1,7 @@
 {
   "name": "news-analysis-openai-nodejs-griddb-code",
   "version": "1.0.0",
-  "description": "automated news tagging usning openai",
+  "description": "automated news tagging using chatgpt, node, and griddb",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -12,9 +12,10 @@
   ],
   "keywords": [
     "griddb",
+    "chatgpt",
     "news tagging",
     "automated content tagging"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }
