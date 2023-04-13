@@ -17,5 +17,8 @@
     "automated content tagging"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "turbo": "^1.9.1"
+  }
 }
