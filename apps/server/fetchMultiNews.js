@@ -7,14 +7,6 @@ async function fetchMultiNews() {
 		if (response.ok) {
 			const data = await response.json();
 
-			const newsData = []
-
-			data.rows.forEach(element => {
-				newsData.push(`${element.row.document}`)
-			});
-
-			return newsData
-
 		} else {
 			console.error('Error fetching dataset', response.statusText);
 		}
