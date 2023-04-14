@@ -97,7 +97,17 @@ async function containersInfo(store) {
 
 async function insert(data, db) {
 	try {
-		await db.put(data);
+		db.put(data);
+		return { ok: true };
+	} catch (err) {
+		console.log(err);
+		return { ok: false, error: err };
+	}
+}
+
+async function multiInsert(data, db) {
+	try {
+		db.multiPut(data);
 		return { ok: true };
 	} catch (err) {
 		console.log(err);
@@ -106,7 +116,7 @@ async function insert(data, db) {
 }
 
 // Query all data
-async function queryAll(db) {
+async function queryAll(db, containerName) {
 	const q = `SELECT * FROM ${containerName}`;
 	const query = db.query(q);
 	try {
@@ -137,6 +147,7 @@ module.exports = {
 	initGridDbTS,
 	createContainer,
 	insert,
+	multiInsert,
 	queryAll,
 	dropContainer,
 	containersInfo,
