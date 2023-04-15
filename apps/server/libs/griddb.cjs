@@ -95,19 +95,19 @@ async function containersInfo(store) {
 	}
 }
 
-async function insert(data, db) {
+function insert(data, db) {
 	try {
 		db.put(data);
 		return { ok: true };
 	} catch (err) {
-		console.log(err);
+		console.log(`insert: ${err}`);
 		return { ok: false, error: err };
 	}
 }
 
 async function multiInsert(data, db) {
 	try {
-		db.multiPut(data);
+		await db.multiPut(data);
 		return { ok: true };
 	} catch (err) {
 		console.log(err);
