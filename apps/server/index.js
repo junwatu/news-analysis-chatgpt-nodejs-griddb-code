@@ -31,15 +31,31 @@ function saveNewsData(newsData) {
 	});
 
 	//⚠️
-	saveForEach(newsDataArray)
-	return newsDataObject
+	saveForEach(newsDataArray);
+	return newsDataObject;
+}
+
+function formatData(newsData) {
+	const newsDataObject = {}
+	newsData.forEach((element, index) => {
+		const news = element?.row?.document;
+		newsDataObject[index + 1] = news;
+	});
+	return newsDataObject;
 }
 
 app.get('/multinews', async (req, res) => {
 	try {
 		const newsData = await fetchMultiNews();
-		const newsDataObject = saveNewsData(newsData);
-		res.status(200).json(newsDataObject);
+		const allData = await GridDB.queryAll(collectionDb, GridDB.containerName);
+
+		if (Array.isArray(allData) && allData.length == 0) {
+			const newsDataObject = saveNewsData(newsData);
+			res.status(200).json(newsDataObject);
+		} else {
+			const newsDataObject2 = formatData(newsData);
+			res.status(200).json(newsDataObject2);
+		}
 	} catch (error) {
 		res.status(500).json({ error: 'Error fetching multi news' });
 	}
