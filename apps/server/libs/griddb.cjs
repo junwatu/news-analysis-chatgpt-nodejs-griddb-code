@@ -65,19 +65,18 @@ async function containersInfo(store) {
 					// Get container information
 					store.getContainerInfo(element)
 						.then((info) => {
-							console.log("Get ContainerInfo: \nname=%s", info.name);
+							console.log("Container Info: \n💽 %s", info.name);
 							if (info.type == griddb.ContainerType.COLLECTION) {
-								console.log('type=Collection');
+								console.log('📦 Type: Collection');
 							} else {
-								console.log('type=TimeSeries');
+								console.log('📦 Type: TimeSeries');
 							}
-							console.log("rowKeyAssigned=%s", info.rowKey.toString());
-							console.log("columnCount=%d", info.columnInfoList.length);
+							//console.log("rowKeyAssigned=%s", info.rowKey.toString());
+							console.log("🛢️  Column Count: %d", info.columnInfoList.length);
 							info.columnInfoList.forEach(
-								element => console.log("column (%s, %d)", element[0], element[1])
+								element => console.log("🔖 Column (%s, %d)", element[0], element[1])
 							);
 						})
-					console.log(element)
 				});
 				return true;
 			})
@@ -115,10 +114,10 @@ async function multiInsert(data, db) {
 	}
 }
 
-// Query all data
-async function queryAll(db, containerName) {
-	const q = `SELECT * FROM ${containerName}`;
-	const query = db.query(q);
+async function queryAll(conInfo, store) {
+	const sql = `SELECT *`;
+	const cont = await store.putContainer(conInfo)
+	const query = await cont.query(sql);
 	try {
 		const rowset = await query.fetch();
 		const results = [];
@@ -128,11 +127,22 @@ async function queryAll(db, containerName) {
 			const rowData = { id: `${row[0]}`, news: row[1] };
 			results.push(rowData);
 		}
-
 		return results;
 	} catch (err) {
 		console.log(err);
-		throw err;
+		return err;
+	}
+}
+
+async function queryByID(id, conInfo, store) {
+	try {
+		const cont = await store.putContainer(conInfo)
+		const row = cont.get(parseInt(id))
+		const result = [];
+		result.push(row)
+		return result;
+	} catch (err) {
+		console.log(err);
 	}
 }
 
@@ -151,6 +161,7 @@ module.exports = {
 	queryAll,
 	dropContainer,
 	containersInfo,
-	containerName
+	containerName,
+	queryByID
 }
 

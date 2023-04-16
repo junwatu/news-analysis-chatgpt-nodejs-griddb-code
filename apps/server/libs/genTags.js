@@ -13,6 +13,7 @@ async function generateTagsFromNews(news) {
 	try {
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
+			max_tokens: 2000,
 			messages: [{ role: "user", content: prompt }],
 		});
 		return completion.data.choices[0].message;
