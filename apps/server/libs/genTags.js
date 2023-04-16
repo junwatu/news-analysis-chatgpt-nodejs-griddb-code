@@ -9,7 +9,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function generateTagsFromNews(news) {
-	const prompt = `Generate five tags from this news with each tag is less than 2 words:\n\n${news}`;
+	const prompt = `Generate five tags from this news and give numbers for the tags:\n\n${news}`;
 	try {
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",

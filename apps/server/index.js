@@ -8,7 +8,7 @@ import { logger } from "./libs/logger.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
-const corsOptions = { origin: ['http://localhost:4001', 'http://127.0.1:4000'] };
+const corsOptions = { origin: ['http://localhost:5173'] };
 const { collectionDb, store, conInfo } = await GridDB.initGridDbTS();
 
 logger.info(await GridDB.containersInfo(store))
@@ -60,14 +60,25 @@ app.get('/multinews', async (req, res) => {
 			results.push(rowData);
 		}
 
+		let randomNews;
+
 		if (Array.isArray(results) && results.length == 0) {
 			logger.info('Database Empty...initialized!');
 			const newsDataObject = saveNewsData(newsData);
-			res.status(200).json(newsDataObject);
+
+			const keys = Object.keys(newsDataObject);
+			const randomKey = keys[Math.floor(Math.random() * keys.length)];
+			randomNews = { id: randomKey, news: newsDataObject[randomKey] };
+
 		} else {
 			const newsDataObject2 = formatData(newsData);
-			res.status(200).json(newsDataObject2);
+			const keys = Object.keys(newsDataObject2);
+			const randomKey = keys[Math.floor(Math.random() * keys.length)];
+			randomNews = { id: randomKey, news: newsDataObject2[randomKey] };
 		}
+
+		res.status(200).json(randomNews);
+
 	} catch (error) {
 		res.status(400).json({ error });
 	}
