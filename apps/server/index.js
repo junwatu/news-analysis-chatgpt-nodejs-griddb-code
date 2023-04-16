@@ -1,12 +1,12 @@
 import cors from 'cors';
-import pino from 'pino';
 import express from 'express';
 import * as GridDB from "./libs/griddb.cjs";
 import { generateTagsFromNews } from './libs/genTags.js';
 import { fetchMultiNews } from './libs/fetchMultiNews.js';
+import { truncateWords, formatData } from "./libs/utils.js";
+import { logger } from "./libs/logger.js";
 
 const app = express();
-const logger = pino();
 const port = process.env.PORT || 4000;
 const corsOptions = { origin: ['http://localhost:4001', 'http://127.0.1:4000'] };
 const { collectionDb, store, conInfo } = await GridDB.initGridDbTS();
@@ -31,17 +31,7 @@ function saveNewsData(newsData) {
 		newsDataArray.push([index, news]);
 	});
 
-	//⚠️
-	saveForEach(newsDataArray);
-	return newsDataObject;
-}
-
-function formatData(newsData) {
-	const newsDataObject = {}
-	newsData.forEach((element, index) => {
-		const news = element?.row?.document;
-		newsDataObject[index + 1] = news;
-	});
+	saveForEach(newsDataArray); //⚠️
 	return newsDataObject;
 }
 
@@ -59,8 +49,6 @@ app.get('/multinews', async (req, res) => {
 		const newsData = await fetchMultiNews();
 		logger.info(`News Data: ${newsData.length}`);
 
-		//const allData = await GridDB.queryAll(collectionDb, GridDB.containerName);
-		//logger.info(`News Data Length: ${allData.length}`);
 		const cont = await store.putContainer(conInfo)
 		const query = await cont.query("SELECT *");
 		const rowset = await query.fetch();
@@ -102,11 +90,3 @@ app.listen(port, () => {
 	logger.info(`🖥️  Server Port: ${port} ✅`);
 });
 
-function truncateWords(inputString, maxWords) {
-	const words = inputString.split(/\s+/);
-	logger.info(`Words Count: ${words.length}`);
-	if (words.length > maxWords) {
-		return words.slice(0, maxWords).join(' ');
-	}
-	return inputString;
-}
