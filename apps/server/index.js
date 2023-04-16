@@ -1,14 +1,14 @@
 import cors from 'cors';
 import express from 'express';
 import * as GridDB from "./libs/griddb.cjs";
-import { generateTagsFromNews } from './libs/genTags.js';
+import { generateTagsFromNews, generateTitle } from './libs/genAI.js';
 import { fetchMultiNews } from './libs/fetchMultiNews.js';
 import { truncateWords, formatData } from "./libs/utils.js";
 import { logger } from "./libs/logger.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
-const corsOptions = { origin: ['http://localhost:5173'] };
+const corsOptions = { origin: ['http://localhost:5173', 'http://127.0.1:4000'] };
 const { collectionDb, store, conInfo } = await GridDB.initGridDbTS();
 
 logger.info(await GridDB.containersInfo(store))
@@ -33,6 +33,29 @@ function saveNewsData(newsData) {
 
 	saveForEach(newsDataArray); //⚠️
 	return newsDataObject;
+}
+
+async function generateData(newsDataObject) {
+	const keys = Object.keys(newsDataObject);
+	const randomKey = keys[Math.floor(Math.random() * keys.length)];
+	let newsDataSelected = { id: randomKey, news: newsDataObject[randomKey] };
+	let title = await generateTitle(newsDataSelected.news);
+	let tags = await generateTagsFromNews(truncateWords(newsDataSelected.news, 1000))
+	newsDataSelected.title = title.content;
+	newsDataSelected.tags = extractTags(tags.content);
+	return newsDataSelected;
+}
+
+function extractTags(input) {
+	const regex = /\d+\.\s*([^\n]+)/g;
+	const tags = [];
+	let match;
+
+	while ((match = regex.exec(input)) !== null) {
+		tags.push(match[1].toLocaleLowerCase());
+	}
+
+	return tags;
 }
 
 app.use((req, res, next) => {
@@ -60,36 +83,31 @@ app.get('/multinews', async (req, res) => {
 			results.push(rowData);
 		}
 
-		let randomNews;
+		let newsDataSelected;
 
 		if (Array.isArray(results) && results.length == 0) {
 			logger.info('Database Empty...initialized!');
 			const newsDataObject = saveNewsData(newsData);
-
-			const keys = Object.keys(newsDataObject);
-			const randomKey = keys[Math.floor(Math.random() * keys.length)];
-			randomNews = { id: randomKey, news: newsDataObject[randomKey] };
-
+			newsDataSelected = await generateData(newsDataObject)
 		} else {
 			const newsDataObject2 = formatData(newsData);
-			const keys = Object.keys(newsDataObject2);
-			const randomKey = keys[Math.floor(Math.random() * keys.length)];
-			randomNews = { id: randomKey, news: newsDataObject2[randomKey] };
+			newsDataSelected = await generateData(newsDataObject2);
 		}
 
-		res.status(200).json(randomNews);
+		res.status(200).json(newsDataSelected);
 
 	} catch (error) {
 		res.status(400).json({ error });
 	}
 });
 
+
 app.get('/gentags/:id', async (req, res) => {
 	const { id } = req.params;
 	try {
 		const cont = await store.putContainer(conInfo)
 		const dataByID = await cont.get(parseInt(id))
-		const words1500 = truncateWords(dataByID[1], 1500);
+		const words1500 = truncateWords(dataByID[1], 1000);
 		const tags = await generateTagsFromNews(words1500);
 		res.status(200).json({ tags: tags.content });
 	} catch (error) {
