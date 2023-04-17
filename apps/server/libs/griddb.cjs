@@ -94,9 +94,9 @@ async function containersInfo(store) {
 	}
 }
 
-function insert(data, db) {
+function insert(data, container) {
 	try {
-		db.put(data);
+		container.put(data);
 		return { ok: true };
 	} catch (err) {
 		console.log(`insert: ${err}`);
